@@ -1,1 +1,1 @@
-Vercel: https://todo-list-kata-pi.vercel.app/
+Vercel: https://react-todo-kata.vercel.app/
