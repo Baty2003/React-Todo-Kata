@@ -3,15 +3,18 @@ import React, { Component } from 'react';
 import Header from '../Header';
 import Footer from '../Footer';
 import TaskList from '../TaskList';
+
 import './TodoApp.css';
 
 export default class TodoApp extends Component {
-  createTodoItem = (label) => {
+  createTodoItem = (label, minutes, seconds) => {
     return {
       id: this.maxId++,
       label: label,
       done: false,
       date: new Date(),
+      minutes: minutes,
+      seconds: seconds,
     };
   };
 
@@ -19,9 +22,9 @@ export default class TodoApp extends Component {
 
   state = {
     todoData: [
-      this.createTodoItem('Drink milk'),
-      this.createTodoItem('Create TodoList React'),
-      this.createTodoItem('Create Plov'),
+      this.createTodoItem('Drink milk', '10', '5'),
+      this.createTodoItem('Create TodoList React', '10', '58'),
+      this.createTodoItem('Create Plov', '0', '5'),
     ],
     showMode: 'all',
   };
@@ -35,10 +38,10 @@ export default class TodoApp extends Component {
     });
   };
 
-  addTodo = (label) => {
+  addTodo = (label, minutes, seconds) => {
     this.setState((state) => {
       return {
-        todoData: [...state.todoData.slice(), this.createTodoItem(label)],
+        todoData: [...state.todoData.slice(), this.createTodoItem(label, minutes, seconds)],
       };
     });
   };
@@ -57,19 +60,27 @@ export default class TodoApp extends Component {
     });
   };
 
-  editLabelTodo = (id, label) => {
+  editTodo = (id, label, mins, secs) => {
     this.setState((state) => {
       const { todoData } = state;
       const findedId = todoData.findIndex((elem) => elem.id === id);
-
       let oldItem = todoData[findedId];
-      let newItem = { ...oldItem, label: label };
+      let newItem = { ...oldItem, label: label, minutes: mins, seconds: secs };
+
       let newArr = [...todoData.slice(0, findedId), newItem, ...todoData.slice(findedId + 1)];
+
       return {
         todoData: newArr,
       };
     });
   };
+
+  formatNumber(number, searchNull) {
+    const num = String(number);
+    if (searchNull === 1) if (num[0] === '0') return num.slice(1);
+    if (String(number).length > 2) return number;
+    return ('0' + String(number)).slice(-2);
+  }
 
   clearCompletedTodos = () => {
     this.setState(({ todoData }) => {
@@ -110,13 +121,14 @@ export default class TodoApp extends Component {
 
     return (
       <section className="todoapp">
-        <Header addTodo={this.addTodo} />
+        <Header addTodo={this.addTodo} formatNumber={this.formatNumber} />
         <section className="main">
           <TaskList
             todoData={this.getTodosData()}
             onDeleted={this.deletedTodo}
             toggleDoneTodo={this.toggleDoneTodo}
-            editLabelTodo={this.editLabelTodo}
+            editTodo={this.editTodo}
+            formatNumber={this.formatNumber}
           />
           <Footer
             countLeftTodo={countLeftTodo}

@@ -1,30 +1,46 @@
+.new-todo-form {
+	display: flex;
+	margin-bottom: 0;
+}
+
 .new-todo,
+.new-todo-form .new-todo-form__timer,
 .edit {
-  position: relative;
-  margin: 0;
-  width: 100%;
-  font-size: 24px;
-  font-family: inherit;
-  font-weight: inherit;
-  line-height: 1.4em;
-  color: inherit;
-  padding: 6px;
-  border: 1px solid #999;
-  box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	position: relative;
+	margin: 0;
+	width: 100%;
+	font-size: 24px;
+	font-family: inherit;
+	font-weight: inherit;
+	line-height: 1.4em;
+	color: inherit;
+	padding: 6px;
+	border: 1px solid #999;
+	box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
+	box-sizing: border-box;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
-.new-todo {
-  padding: 16px 16px 16px 60px;
-  border: none;
-  background: rgba(0, 0, 0, 0.003);
-  box-shadow: inset 0 -2px 1px rgba(0, 0, 0, 0.03);
-  transition: 0.4s ease-in;
+.new-todo, .new-todo-form .new-todo-form__timer {
+	padding: 16px 0px 16px 60px;
+	border: none;
+	background: rgba(0, 0, 0, 0.003);
+	box-shadow: inset 0 -2px 1px rgba(0,0,0,0.03);
 }
 
-.wrong {
-  box-shadow: 0 0 30px 30px rgba(0, 0, 0, 0.03);
-  background: tomato;
+.new-todo__width-70{
+	width: 70%;
+}
+
+.new-todo__width-15{
+	width: 15%;
+}
+
+.new-todo-form .new-todo-form__timer {
+	padding-left: 16px;
+}
+
+.wrong{
+	background-color: red;
 }

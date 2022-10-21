@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import PropTypes from 'prop-types';
+
 import './Task.css';
+import Timer from '../Timer';
 
 export default class Task extends Component {
   static defaultProps = {
@@ -20,13 +22,19 @@ export default class Task extends Component {
     date: PropTypes.object,
   };
 
+  formatNumber = this.props.formatNumber;
+
   state = {
     ago: formatDistanceToNow(this.props.date),
     edit: false,
     editLabel: this.props.label,
+    editMins: this.formatNumber(this.props.minutes),
+    editSecs: this.formatNumber(this.props.seconds),
   };
 
-  inputEditRef = React.createRef();
+  inputLabelRef = React.createRef();
+  inputMinsRef = React.createRef();
+  inputSecsRef = React.createRef();
 
   componentDidMount = () => {
     this.timerID = setInterval(() => {
@@ -51,43 +59,61 @@ export default class Task extends Component {
     await this.promisedSetState({
       edit: true,
     });
-    this.inputEditRef.current.focus();
+    this.inputLabelRef.current.focus();
   };
 
-  onChangeInputEditLabel = (event) => {
-    this.setState({
-      editLabel: event.target.value,
-    });
-  };
-
-  cancelEditLabel = (event) => {
-    if (event.keyCode === 27)
+  onChangeEditInputs = (event) => {
+    const name = event.target.name;
+    if (name === 'editMins' || name === 'editSecs')
       this.setState({
-        edit: false,
+        [event.target.name]: this.formatNumber(event.target.value, 1),
+      });
+    else
+      this.setState({
+        [event.target.name]: event.target.value,
       });
   };
 
-  saveNewLabel = (event) => {
-    event.preventDefault();
-    const { editLabel } = this.state;
-    if (editLabel.trim() === '') {
-      this.inputEditRef.current.style.borderColor = 'red';
+  highlightElem = (elem, duration) => {
+    elem.style.backgroundColor = 'red';
 
-      setTimeout(() => {
-        this.inputEditRef.current.style.borderColor = 'white';
-      }, 400);
-      return;
-    }
-    this.props.editLabelTodo(editLabel.trim());
+    setTimeout(() => {
+      elem.style.backgroundColor = 'white';
+    }, duration);
 
+    return;
+  };
+
+  cancelEditLabel = () => {
     this.setState({
       edit: false,
     });
   };
 
+  saveChangeTodo = (event) => {
+    if (event.keyCode === 27) this.cancelEditLabel();
+    if (event.keyCode !== 13) return;
+    const { editLabel, editMins, editSecs } = this.state;
+
+    if (editLabel.trim() === '') {
+      this.highlightElem(this.inputLabelRef.current, 500);
+      return;
+    } else if (editMins > 9999 || editMins < 0) {
+      this.highlightElem(this.inputMinsRef.current, 500);
+      return;
+    } else if (editSecs > 59 || editSecs < 0) {
+      this.highlightElem(this.inputSecsRef.current, 500);
+      return;
+    }
+
+    this.props.editTodo(editLabel.trim(), this.formatNumber(editMins), this.formatNumber(editSecs));
+
+    this.cancelEditLabel();
+  };
+
   render() {
-    const { label, onDeleted, done } = this.props;
-    const { ago, edit, editLabel } = this.state;
+    const { label, onDeleted, done, minutes, seconds, formatNumber } = this.props;
+    const { ago, edit, editLabel, editMins, editSecs } = this.state;
 
     const disable = { display: 'none' };
 
@@ -97,25 +123,61 @@ export default class Task extends Component {
     return (
       <li className={className}>
         <div className="view">
-          <label className="label-task" htmlFor="label-new-todo" onClick={this.handleCheckBoxClick}>
-            <input className="toggle" name="label-new-todo" checked={done} onChange={() => {}} type="checkbox" />
+          <label className="label-task" htmlFor="label-new-todo">
+            <input
+              className="toggle"
+              name="label-new-todo"
+              checked={done}
+              onChange={() => {}}
+              onClick={this.handleCheckBoxClick}
+              type="checkbox"
+            />
             <label>
-              <span className="description">{label}</span>
+              <span className="title">{label}</span>
+              <Timer className="description" minutes={minutes} seconds={seconds} formatNumber={formatNumber} />
               <span className="created">{ago}</span>
             </label>
           </label>
           <button className="icon icon-edit" onClick={this.handleEditButtonClick}></button>
           <button className="icon icon-destroy" onClick={onDeleted}></button>
         </div>
-        <form method="post" onSubmit={this.saveNewLabel} style={!edit ? disable : {}}>
-          <input
-            type="text"
-            className="edit"
-            value={editLabel}
-            onChange={this.onChangeInputEditLabel}
-            onKeyDown={this.cancelEditLabel}
-            ref={this.inputEditRef}
-          />
+        <form method="post" className="edit-form" onKeyDown={this.saveChangeTodo} style={!edit ? disable : {}}>
+          <label htmlFor="" className="edit-label">
+            <input
+              type="text"
+              className="edit"
+              name="editLabel"
+              value={editLabel}
+              onChange={this.onChangeEditInputs}
+              ref={this.inputLabelRef}
+            />
+          </label>
+          <label htmlFor="minutes" className="edit-label edit-label--small">
+            <input
+              placeholder="Min"
+              className="edit edit--small"
+              name="editMins"
+              value={editMins}
+              onChange={this.onChangeEditInputs}
+              type="number"
+              max="9999"
+              min="0"
+              ref={this.inputMinsRef}
+            />
+          </label>
+          <label htmlFor="seconds" className="edit-label edit-label--small">
+            <input
+              placeholder="Sec"
+              className="edit edit--small"
+              name="editSecs"
+              value={editSecs}
+              onChange={this.onChangeEditInputs}
+              type="number"
+              max="59"
+              min="0"
+              ref={this.inputSecsRef}
+            />
+          </label>
         </form>
       </li>
     );
