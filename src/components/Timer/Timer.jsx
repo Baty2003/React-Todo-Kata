@@ -11,7 +11,9 @@ export default class Timer extends Component {
   timerId = null;
   timerText = React.createRef();
 
-  startTimer = () => {
+  startTimer = (event) => {
+    console.log(event.target);
+
     if (this.timerId) return;
     this.timerId = setInterval(this.changeTimer, 1000);
   };

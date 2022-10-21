@@ -129,11 +129,13 @@ export default class Task extends Component {
               name="label-new-todo"
               checked={done}
               onChange={() => {}}
-              onClick={this.handleCheckBoxClick}
               type="checkbox"
+              onClick={this.handleCheckBoxClick}
             />
-            <label>
-              <span className="title">{label}</span>
+            <label htmlFor="title">
+              <span className="title" name="title" onClick={this.handleCheckBoxClick}>
+                {label}
+              </span>
               <Timer className="description" minutes={minutes} seconds={seconds} formatNumber={formatNumber} />
               <span className="created">{ago}</span>
             </label>
