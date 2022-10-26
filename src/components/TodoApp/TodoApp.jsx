@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Header from '../Header';
 import Footer from '../Footer';
@@ -19,6 +19,8 @@ const TodoApp = () => {
   };
 
   let maxId = 0;
+
+  useEffect(() => console.log('It is Apps on hooks'), []);
 
   const [todoData, setTodoData] = useState([
     createTodoItem('Drink milk', '10', '5'),
