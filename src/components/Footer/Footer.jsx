@@ -4,16 +4,11 @@ import PropTypes from 'prop-types';
 import TasksFilter from '../TasksFilter';
 import './Footer.css';
 
-const Footer = ({ countLeftTodo, clearCompletedTodos, showOnlyActive, showOnlyCompleted, showAll, showMode }) => {
+const Footer = ({ countLeftTodo, clearCompletedTodos, setModeShow, showMode }) => {
   return (
     <footer className="footer">
       <span className="todo-count">{countLeftTodo} items left</span>
-      <TasksFilter
-        showOnlyActive={showOnlyActive}
-        showOnlyCompleted={showOnlyCompleted}
-        showAll={showAll}
-        showMode={showMode}
-      />
+      <TasksFilter setModeShow={setModeShow} showMode={showMode} />
       <button className="clear-completed" onClick={clearCompletedTodos}>
         Clear completed
       </button>

@@ -1,80 +1,54 @@
-import React, { Component } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import PropTypes from 'prop-types';
 
 import './Task.css';
 import Timer from '../Timer';
 
-export default class Task extends Component {
-  static defaultProps = {
-    label: 'The label is not specified',
-    onDeleted: () => {},
-    editLabelTodo: () => {},
-    done: false,
-    date: {},
+const Task = (props) => {
+  const formatNumber = props.formatNumber;
+
+  const [ago, agoSet] = useState(formatDistanceToNow(props.date));
+  const [edit, editSet] = useState(false);
+  const [editFields, editFieldsSet] = useState({
+    editLabel: props.label,
+    editMins: formatNumber(props.minutes),
+    editSecs: formatNumber(props.seconds),
+  });
+
+  const setFieldsFunction = (nameField, value) => {
+    editFieldsSet((object) => {
+      return { ...object, [nameField]: value };
+    });
   };
 
-  static propTypes = {
-    label: PropTypes.string,
-    onDeleted: PropTypes.func,
-    editLabelTodo: PropTypes.func,
-    done: PropTypes.bool,
-    date: PropTypes.object,
-  };
+  const inputLabelRef = useRef(null);
+  const inputMinsRef = useRef(null);
+  const inputSecsRef = useRef(null);
 
-  formatNumber = this.props.formatNumber;
+  useEffect(() => {
+    let timerID = setInterval(() => agoSet(formatDistanceToNow(props.date), 30000));
+    return () => clearInterval(timerID);
+  }, []);
 
-  state = {
-    ago: formatDistanceToNow(this.props.date),
-    edit: false,
-    editLabel: this.props.label,
-    editMins: this.formatNumber(this.props.minutes),
-    editSecs: this.formatNumber(this.props.seconds),
-  };
-
-  inputLabelRef = React.createRef();
-  inputMinsRef = React.createRef();
-  inputSecsRef = React.createRef();
-
-  componentDidMount = () => {
-    this.timerID = setInterval(() => {
-      this.setState({
-        ago: formatDistanceToNow(this.props.date),
-      });
-    }, 30000);
-  };
-
-  promisedSetState = (newState) => new Promise((resolve) => this.setState(newState, resolve));
-
-  componentWillUnmount = () => {
-    clearInterval(this.timerID);
-  };
-
-  handleCheckBoxClick = () => {
-    let { toggleDoneTodo } = this.props;
+  const handleCheckBoxClick = () => {
+    let { toggleDoneTodo } = props;
     toggleDoneTodo();
   };
 
-  handleEditButtonClick = async () => {
-    await this.promisedSetState({
-      edit: true,
-    });
-    this.inputLabelRef.current.focus();
+  const handleEditButtonClick = async () => {
+    await editSet(true);
+    inputLabelRef.current.focus();
   };
 
-  onChangeEditInputs = (event) => {
+  const onChangeEditInputs = (event) => {
     const name = event.target.name;
     if (name === 'editMins' || name === 'editSecs')
-      this.setState({
-        [event.target.name]: this.formatNumber(event.target.value, 1),
-      });
-    else
-      this.setState({
-        [event.target.name]: event.target.value,
-      });
+      setFieldsFunction([event.target.name], formatNumber(event.target.value, 1));
+    else setFieldsFunction([event.target.name], event.target.value);
   };
 
-  highlightElem = (elem, duration) => {
+  const highlightElem = (elem, duration) => {
     elem.style.backgroundColor = 'red';
 
     setTimeout(() => {
@@ -84,104 +58,118 @@ export default class Task extends Component {
     return;
   };
 
-  cancelEditLabel = () => {
-    this.setState({
-      edit: false,
-    });
+  const cancelEditLabel = () => {
+    editSet(false);
   };
 
-  saveChangeTodo = (event) => {
-    if (event.keyCode === 27) this.cancelEditLabel();
+  const saveChangeTodo = (event) => {
+    if (event.keyCode === 27) cancelEditLabel();
     if (event.keyCode !== 13) return;
-    const { editLabel, editMins, editSecs } = this.state;
+    const { editLabel, editMins, editSecs } = editFields;
 
     if (editLabel.trim() === '') {
-      this.highlightElem(this.inputLabelRef.current, 500);
+      highlightElem(inputLabelRef.current, 500);
       return;
     } else if (editMins > 9999 || editMins < 0) {
-      this.highlightElem(this.inputMinsRef.current, 500);
+      highlightElem(inputMinsRef.current, 500);
       return;
     } else if (editSecs > 59 || editSecs < 0) {
-      this.highlightElem(this.inputSecsRef.current, 500);
+      highlightElem(inputSecsRef.current, 500);
       return;
     }
 
-    this.props.editTodo(editLabel.trim(), this.formatNumber(editMins), this.formatNumber(editSecs));
+    props.editTodo(editLabel.trim(), formatNumber(editMins), formatNumber(editSecs));
 
-    this.cancelEditLabel();
+    cancelEditLabel();
   };
 
-  render() {
-    const { label, onDeleted, done, minutes, seconds, formatNumber } = this.props;
-    const { ago, edit, editLabel, editMins, editSecs } = this.state;
+  const { label, onDeleted, done, minutes, seconds } = props;
+  const { editLabel, editMins, editSecs } = editFields;
 
-    const disable = { display: 'none' };
+  const disable = { display: 'none' };
 
-    let className = done ? 'completed' : '';
-    className += edit ? ' editing' : '';
+  let className = done ? 'completed' : '';
+  className += edit ? ' editing' : '';
 
-    return (
-      <li className={className}>
-        <div className="view">
-          <label className="label-task" htmlFor="label-new-todo">
-            <input
-              className="toggle"
-              name="label-new-todo"
-              checked={done}
-              onChange={() => {}}
-              type="checkbox"
-              onClick={this.handleCheckBoxClick}
-            />
-            <label htmlFor="title">
-              <span className="title" name="title" onClick={this.handleCheckBoxClick}>
-                {label}
-              </span>
-              <Timer className="description" minutes={minutes} seconds={seconds} formatNumber={formatNumber} />
-              <span className="created">{ago}</span>
-            </label>
+  return (
+    <li className={className}>
+      <div className="view">
+        <label className="label-task" htmlFor="label-new-todo">
+          <input
+            className="toggle"
+            name="label-new-todo"
+            checked={done}
+            onChange={() => {}}
+            type="checkbox"
+            onClick={handleCheckBoxClick}
+          />
+          <label htmlFor="title">
+            <span className="title" name="title" onClick={handleCheckBoxClick}>
+              {label}
+            </span>
+            <Timer className="description" minutes={minutes} seconds={seconds} formatNumber={formatNumber} />
+            <span className="created">{ago}</span>
           </label>
-          <button className="icon icon-edit" onClick={this.handleEditButtonClick}></button>
-          <button className="icon icon-destroy" onClick={onDeleted}></button>
-        </div>
-        <form method="post" className="edit-form" onKeyDown={this.saveChangeTodo} style={!edit ? disable : {}}>
-          <label htmlFor="" className="edit-label">
-            <input
-              type="text"
-              className="edit"
-              name="editLabel"
-              value={editLabel}
-              onChange={this.onChangeEditInputs}
-              ref={this.inputLabelRef}
-            />
-          </label>
-          <label htmlFor="minutes" className="edit-label edit-label--small">
-            <input
-              placeholder="Min"
-              className="edit edit--small"
-              name="editMins"
-              value={editMins}
-              onChange={this.onChangeEditInputs}
-              type="number"
-              max="9999"
-              min="0"
-              ref={this.inputMinsRef}
-            />
-          </label>
-          <label htmlFor="seconds" className="edit-label edit-label--small">
-            <input
-              placeholder="Sec"
-              className="edit edit--small"
-              name="editSecs"
-              value={editSecs}
-              onChange={this.onChangeEditInputs}
-              type="number"
-              max="59"
-              min="0"
-              ref={this.inputSecsRef}
-            />
-          </label>
-        </form>
-      </li>
-    );
-  }
-}
+        </label>
+        <button className="icon icon-edit" onClick={handleEditButtonClick}></button>
+        <button className="icon icon-destroy" onClick={onDeleted}></button>
+      </div>
+      <form method="post" className="edit-form" onKeyDown={saveChangeTodo} style={!edit ? disable : {}}>
+        <label htmlFor="" className="edit-label">
+          <input
+            type="text"
+            className="edit"
+            name="editLabel"
+            value={editLabel}
+            onChange={onChangeEditInputs}
+            ref={inputLabelRef}
+          />
+        </label>
+        <label htmlFor="minutes" className="edit-label edit-label--small">
+          <input
+            placeholder="Min"
+            className="edit edit--small"
+            name="editMins"
+            value={editMins}
+            onChange={onChangeEditInputs}
+            type="number"
+            max="9999"
+            min="0"
+            ref={inputMinsRef}
+          />
+        </label>
+        <label htmlFor="seconds" className="edit-label edit-label--small">
+          <input
+            placeholder="Sec"
+            className="edit edit--small"
+            name="editSecs"
+            value={editSecs}
+            onChange={onChangeEditInputs}
+            type="number"
+            max="59"
+            min="0"
+            ref={inputSecsRef}
+          />
+        </label>
+      </form>
+    </li>
+  );
+};
+
+Task.defaultProps = {
+  label: 'The label is not specified',
+  onDeleted: () => {},
+  editLabelTodo: () => {},
+  done: false,
+  date: {},
+};
+
+Task.propTypes = {
+  label: PropTypes.string,
+  onDeleted: PropTypes.func,
+  editLabelTodo: PropTypes.func,
+  done: PropTypes.bool,
+  date: PropTypes.object,
+};
+
+export default Task;

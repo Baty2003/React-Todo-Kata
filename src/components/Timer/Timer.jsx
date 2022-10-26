@@ -1,25 +1,12 @@
-import React, { Component } from 'react';
+// import { set } from 'date-fns';
+import React, { useState, useEffect } from 'react';
 import './Timer.css';
-export default class Timer extends Component {
-  formatNumber = this.props.formatNumber;
 
-  state = {
-    minutes: this.formatNumber(this.props.minutes),
-    seconds: this.formatNumber(this.props.seconds),
-  };
+const StartedTimer = (props) => {
+  const formatNumber = props.formatNumber;
 
-  timerId = null;
-  timerText = React.createRef();
-
-  startTimer = (event) => {
-    console.log(event.target);
-
-    if (this.timerId) return;
-    this.timerId = setInterval(this.changeTimer, 1000);
-  };
-
-  changeTimer = () => {
-    this.setState(({ seconds: secondsState, minutes: minutesState }) => {
+  const changeTimer = (timerId) => {
+    props.setTimeTimer(({ minutes: minutesState, seconds: secondsState }) => {
       let secondsUpdate = parseInt(secondsState);
       let minutesUpdate = parseInt(minutesState);
       if (secondsUpdate > 0) {
@@ -29,44 +16,63 @@ export default class Timer extends Component {
           minutesUpdate = minutesUpdate - 1;
           secondsUpdate = 59;
         } else {
-          clearInterval(this.timerId);
+          clearInterval(timerId);
         }
       }
 
       return {
-        seconds: this.formatNumber(secondsUpdate),
-        minutes: this.formatNumber(minutesUpdate),
+        seconds: formatNumber(secondsUpdate),
+        minutes: formatNumber(minutesUpdate),
       };
     });
   };
 
-  stopTimer = () => {
-    clearInterval(this.timerId);
-    this.timerId = null;
-  };
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      changeTimer(timerId);
+    }, 1000);
+    return () => {
+      clearInterval(timerId);
+    };
+  }, []);
 
-  componentWillUnmount() {
-    this.stopTimer();
-  }
+  let { minutes, seconds } = props.timeTimer;
+  return (
+    <>
+      {minutes}:{seconds}
+    </>
+  );
+};
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.minutes != this.props.minutes || prevProps.seconds != this.props.seconds)
-      this.setState(() => {
-        return { minutes: this.formatNumber(this.props.minutes), seconds: this.formatNumber(this.props.seconds) };
-      });
-  }
+const Timer = (props) => {
+  const formatNumber = props.formatNumber;
 
-  render() {
-    let { className } = this.props;
-    let { minutes, seconds } = this.state;
-    return (
-      <span className={`${className} timer`}>
-        <button className="timer__icon-button icon icon-play" onClick={this.startTimer}></button>
-        <button className="timer__icon-button icon icon-pause" onClick={this.stopTimer}></button>
-        <span className="timer__time" ref={this.timerText}>
-          {minutes}:{seconds}
-        </span>
+  let [timeTimer, setTimeTimer] = useState({
+    minutes: formatNumber(props.minutes),
+    seconds: formatNumber(props.seconds),
+  });
+  let [statusTimer, setStatusTimer] = useState(false);
+
+  useEffect(() => {
+    setStatusTimer(false);
+    setTimeTimer({ minutes: formatNumber(props.minutes), seconds: formatNumber(props.seconds) });
+  }, [props.minutes, props.seconds]);
+
+  let { className } = props;
+  let { minutes, seconds } = timeTimer;
+  return (
+    <span className={`${className} timer`}>
+      <button className="timer__icon-button icon icon-play" onClick={() => setStatusTimer(true)}></button>
+      <button className="timer__icon-button icon icon-pause" onClick={() => setStatusTimer(false)}></button>
+      <span className="timer__time">
+        {statusTimer ? (
+          <StartedTimer timeTimer={timeTimer} formatNumber={formatNumber} setTimeTimer={setTimeTimer} />
+        ) : (
+          `${minutes}:${seconds}`
+        )}
       </span>
-    );
-  }
-}
+    </span>
+  );
+};
+
+export default Timer;
