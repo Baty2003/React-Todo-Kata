@@ -41,22 +41,22 @@
   margin: 0;
 }
 
-.todo-list li .edit-label{
+.todo-list li .edit-label {
   display: block;
   width: 70%;
   padding: 0;
   margin: 0;
 }
 
-.todo-list li .edit-label--small{
+.todo-list li .edit-label--small {
   width: 15%;
 }
 
-.edit-form{
+.edit-form {
   display: flex;
 }
 
-.todo-list li.editing .edit.edit--small{
+.todo-list li.editing .edit.edit--small {
   margin: 0;
   width: 100%;
 }

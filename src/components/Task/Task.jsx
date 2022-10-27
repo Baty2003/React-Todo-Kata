@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useId } from 'react';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import PropTypes from 'prop-types';
 
@@ -7,6 +7,11 @@ import Timer from '../Timer';
 
 const Task = (props) => {
   const formatNumber = props.formatNumber;
+
+  const inputLabelRef = useRef(null);
+  const inputMinsRef = useRef(null);
+  const inputSecsRef = useRef(null);
+  const id = useId();
 
   const [ago, agoSet] = useState(formatDistanceToNow(props.date));
   const [edit, editSet] = useState(false);
@@ -21,10 +26,6 @@ const Task = (props) => {
       return { ...object, [nameField]: value };
     });
   };
-
-  const inputLabelRef = useRef(null);
-  const inputMinsRef = useRef(null);
-  const inputSecsRef = useRef(null);
 
   useEffect(() => {
     let timerID = setInterval(() => agoSet(formatDistanceToNow(props.date), 30000));
@@ -50,11 +51,9 @@ const Task = (props) => {
 
   const highlightElem = (elem, duration) => {
     elem.style.backgroundColor = 'red';
-
     setTimeout(() => {
       elem.style.backgroundColor = 'white';
     }, duration);
-
     return;
   };
 
@@ -77,9 +76,7 @@ const Task = (props) => {
       highlightElem(inputSecsRef.current, 500);
       return;
     }
-
     props.editTodo(editLabel.trim(), formatNumber(editMins), formatNumber(editSecs));
-
     cancelEditLabel();
   };
 
@@ -94,7 +91,7 @@ const Task = (props) => {
   return (
     <li className={className}>
       <div className="view">
-        <label className="label-task" htmlFor="label-new-todo">
+        <label className="label-task" htmlFor={id + '-checkbox-done'}>
           <input
             className="toggle"
             name="label-new-todo"
@@ -102,6 +99,7 @@ const Task = (props) => {
             onChange={() => {}}
             type="checkbox"
             onClick={handleCheckBoxClick}
+            id={id + '-checkbox-done'}
           />
           <label htmlFor="title">
             <span className="title" name="title" onClick={handleCheckBoxClick}>
@@ -115,7 +113,7 @@ const Task = (props) => {
         <button className="icon icon-destroy" onClick={onDeleted}></button>
       </div>
       <form method="post" className="edit-form" onKeyDown={saveChangeTodo} style={!edit ? disable : {}}>
-        <label htmlFor="" className="edit-label">
+        <label htmlFor={id + '-edit-label'} className="edit-label">
           <input
             type="text"
             className="edit"
@@ -123,9 +121,10 @@ const Task = (props) => {
             value={editLabel}
             onChange={onChangeEditInputs}
             ref={inputLabelRef}
+            id={id + '-edit-label'}
           />
         </label>
-        <label htmlFor="minutes" className="edit-label edit-label--small">
+        <label htmlFor={id + '-edit-minutes'} className="edit-label edit-label--small">
           <input
             placeholder="Min"
             className="edit edit--small"
@@ -136,9 +135,10 @@ const Task = (props) => {
             max="9999"
             min="0"
             ref={inputMinsRef}
+            id={id + '-edit-minutes'}
           />
         </label>
-        <label htmlFor="seconds" className="edit-label edit-label--small">
+        <label htmlFor={id + '-edit-seconds'} className="edit-label edit-label--small">
           <input
             placeholder="Sec"
             className="edit edit--small"
@@ -149,6 +149,7 @@ const Task = (props) => {
             max="59"
             min="0"
             ref={inputSecsRef}
+            id={id + '-edit-seconds'}
           />
         </label>
       </form>

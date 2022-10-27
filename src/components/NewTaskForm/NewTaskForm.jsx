@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useId } from 'react';
 import PropTypes from 'prop-types';
 import './NewTaskForm.css';
 
@@ -6,6 +6,8 @@ const NewTaskForm = (props) => {
   const [label, setLabel] = useState('');
   const [mins, setMins] = useState('');
   const [secs, setSecs] = useState('');
+  const inputAddTodo = useRef(null);
+  const id = useId();
 
   const objectWithFunctionsSetState = {
     label: setLabel,
@@ -18,8 +20,6 @@ const NewTaskForm = (props) => {
       objectWithFunctionsSetState[key]('');
     }
   };
-
-  const inputAddTodo = useRef(null);
 
   const formatNumber = props.formatNumber;
 
@@ -52,12 +52,9 @@ const NewTaskForm = (props) => {
         form.classList.remove('wrong');
         inputAddTodo.current.placeholder = 'What needs to be done?';
       }, 1000);
-
       resetAllStates();
-
       return;
     }
-
     let { addTodo } = props;
     addTodo(label.trim(), mins.trim(), secs.trim());
     resetAllStates();
@@ -65,7 +62,7 @@ const NewTaskForm = (props) => {
 
   return (
     <form action="" method="post" className="new-todo-form" onKeyDown={getLabelTodo}>
-      <label htmlFor="label" className="new-todo__width-70">
+      <label htmlFor={id + '-label-new-todo'} className="new-todo__width-70">
         <input
           name="label"
           ref={inputAddTodo}
@@ -73,9 +70,10 @@ const NewTaskForm = (props) => {
           value={label}
           placeholder="What needs to be done?"
           onChange={setNewChangeInputs}
+          id={id + '-label-new-todo'}
         />
       </label>
-      <label htmlFor="minutes" className="new-todo__width-15">
+      <label htmlFor={id + '-minutes-new-todo'} className="new-todo__width-15">
         <input
           placeholder="Min"
           value={mins}
@@ -85,9 +83,10 @@ const NewTaskForm = (props) => {
           type="number"
           max="9999"
           min="0"
+          id={id + '-minutes-new-todo'}
         />
       </label>
-      <label htmlFor="seconds" className="new-todo__width-15">
+      <label htmlFor={id + '-seconds-new-todo'} className="new-todo__width-15">
         <input
           placeholder="Sec"
           value={secs}
@@ -97,6 +96,7 @@ const NewTaskForm = (props) => {
           type="number"
           max="59"
           min="0"
+          id={id + '-seconds-new-todo'}
         />
       </label>
     </form>
