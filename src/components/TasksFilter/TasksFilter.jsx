@@ -12,12 +12,22 @@ const TasksFilter = (props) => {
   return (
     <ul className="filters">
       <li>
-        <button className={showMode === 'all' ? 'selected' : ''} onClick={clickButtonChangeModeShow} name="all">
+        <button
+          className={showMode === 'all' ? 'selected' : ''}
+          onClick={clickButtonChangeModeShow}
+          name="all"
+          aria-label={'button show all content'}
+        >
           All
         </button>
       </li>
       <li>
-        <button className={showMode === 'active' ? 'selected' : ''} onClick={clickButtonChangeModeShow} name="active">
+        <button
+          className={showMode === 'active' ? 'selected' : ''}
+          onClick={clickButtonChangeModeShow}
+          name="active"
+          aria-label={'button show active content'}
+        >
           Active
         </button>
       </li>
@@ -26,6 +36,7 @@ const TasksFilter = (props) => {
           className={showMode === 'completed' ? 'selected' : ''}
           onClick={clickButtonChangeModeShow}
           name="completed"
+          aria-label={'button show completed content'}
         >
           Completed
         </button>

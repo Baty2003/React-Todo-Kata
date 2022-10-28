@@ -60,8 +60,16 @@ const Timer = (props) => {
 
   return (
     <span className={`${className} timer`}>
-      <button className="timer__icon-button icon icon-play" onClick={() => setStatusTimer(true)}></button>
-      <button className="timer__icon-button icon icon-pause" onClick={() => setStatusTimer(false)}></button>
+      <button
+        className="timer__icon-button icon icon-play"
+        onClick={() => setStatusTimer(true)}
+        aria-label={'button start timer for current task'}
+      ></button>
+      <button
+        className="timer__icon-button icon icon-pause"
+        onClick={() => setStatusTimer(false)}
+        aria-label={'button stop timer for current task'}
+      ></button>
       <span className="timer__time">
         <StartedTimer formatNumber={formatNumber} minutes={minutes} seconds={seconds} status={statusTimer} />
       </span>

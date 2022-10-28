@@ -3,7 +3,7 @@ import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import PropTypes from 'prop-types';
 
 import './Task.css';
-import Timer from '../Timer';
+import { Timer } from '../Timer';
 
 const Task = (props) => {
   const formatNumber = props.formatNumber;
@@ -13,7 +13,7 @@ const Task = (props) => {
   const inputSecsRef = useRef(null);
   const id = useId();
 
-  const [ago, agoSet] = useState(formatDistanceToNow(props.date));
+  const [ago, agoSet] = useState(formatDistanceToNow(props.item.date));
   const [edit, editSet] = useState(false);
   const [editFields, editFieldsSet] = useState({
     editLabel: props.label,
@@ -28,7 +28,7 @@ const Task = (props) => {
   };
 
   useEffect(() => {
-    let timerID = setInterval(() => agoSet(formatDistanceToNow(props.date), 30000));
+    let timerID = setInterval(() => agoSet(formatDistanceToNow(props.item.date), 30000));
     return () => clearInterval(timerID);
   }, []);
 
@@ -80,7 +80,8 @@ const Task = (props) => {
     cancelEditLabel();
   };
 
-  const { label, onDeleted, done, minutes, seconds } = props;
+  const { onDeleted } = props;
+  const { label, done, minutes, seconds } = props.item;
   const { editLabel, editMins, editSecs } = editFields;
 
   const disable = { display: 'none' };

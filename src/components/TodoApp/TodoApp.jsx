@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-import Header from '../Header';
-import Footer from '../Footer';
-import TaskList from '../TaskList';
+import { Header } from '../Header';
+import { Footer } from '../Footer';
+import { TaskList } from '../TaskList';
 
 import './TodoApp.css';
 
@@ -20,8 +20,6 @@ const TodoApp = () => {
 
   let maxId = 0;
 
-  useEffect(() => console.log('It is Apps on hooks'), []);
-
   const [todoData, setTodoData] = useState([
     createTodoItem('Drink milk', '10', '5'),
     createTodoItem('Create TodoList React', '10', '58'),
@@ -31,8 +29,8 @@ const TodoApp = () => {
   const [showMode, setShowMode] = useState('all');
 
   const deletedTodo = (id) => {
+    const findedId = todoData.findIndex((elem) => elem.id === id);
     setTodoData((todoData) => {
-      const findedId = todoData.findIndex((elem) => elem.id === id);
       return [...todoData.slice(0, findedId), ...todoData.slice(findedId + 1)];
     });
   };
@@ -44,27 +42,21 @@ const TodoApp = () => {
   };
 
   const toggleDoneTodo = (id) => {
-    setTodoData((todoData) => {
-      const findedId = todoData.findIndex((elem) => elem.id === id);
-      let oldObj = todoData[findedId];
-      let newObj = { ...oldObj, done: !oldObj.done };
+    const findedId = todoData.findIndex((elem) => elem.id === id);
+    let oldObj = todoData[findedId];
+    let newObj = { ...oldObj, done: !oldObj.done };
+    let newArr = [...todoData.slice(0, findedId), newObj, ...todoData.slice(findedId + 1)];
 
-      let newArr = [...todoData.slice(0, findedId), newObj, ...todoData.slice(findedId + 1)];
-
-      return newArr;
-    });
+    setTodoData(newArr);
   };
 
   const editTodo = (id, label, mins, secs) => {
-    setTodoData((todoData) => {
-      const findedId = todoData.findIndex((elem) => elem.id === id);
-      let oldItem = todoData[findedId];
-      let newItem = { ...oldItem, label: label, minutes: mins, seconds: secs };
+    const findedId = todoData.findIndex((elem) => elem.id === id);
+    let oldItem = todoData[findedId];
+    let newItem = { ...oldItem, label: label, minutes: mins, seconds: secs };
+    let newArr = [...todoData.slice(0, findedId), newItem, ...todoData.slice(findedId + 1)];
 
-      let newArr = [...todoData.slice(0, findedId), newItem, ...todoData.slice(findedId + 1)];
-
-      return newArr;
-    });
+    setTodoData(newArr);
   };
 
   const formatNumber = (number, searchNull) => {
@@ -75,10 +67,8 @@ const TodoApp = () => {
   };
 
   const clearCompletedTodos = () => {
-    setTodoData((todoData) => {
-      let newArr = todoData.filter((item) => !item.done);
-      return newArr;
-    });
+    let newArr = todoData.filter((item) => !item.done);
+    setTodoData(newArr);
   };
 
   const setModeShow = (nameMode) => {

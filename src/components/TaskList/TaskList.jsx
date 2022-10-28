@@ -1,28 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import Task from '../Task/Task';
+import { Task } from '../Task';
 import './TaskList.css';
 
-const TaskList = ({ todoData, onDeleted, toggleDoneTodo, editTodo, formatNumber }) => {
-  const elements = todoData.map(({ id, ...item }) => {
-    return (
+const TaskList = ({ todoData, onDeleted, toggleDoneTodo, editTodo, formatNumber }) => (
+  <ul className="todo-list">
+    {todoData.map(({ id, ...item }) => (
       <Task
         key={id}
         onDeleted={() => onDeleted(id)}
         toggleDoneTodo={() => {
           toggleDoneTodo(id);
         }}
-        {...item}
+        item={{ ...item }}
         editTodo={(label, mins, secs) => editTodo(id, label, mins, secs)}
         formatNumber={formatNumber}
       />
-    );
-  });
-
-  return <ul className="todo-list">{elements}</ul>;
-};
-
+    ))}
+  </ul>
+);
 TaskList.propTypes = {
   todoData: PropTypes.array.isRequired,
 };
